@@ -33,7 +33,7 @@ function Sidebar() {
             <Explore />
             <span>Explore</span>
         </Link>
-        <a href="#create-post" className="flex items-center space-x-2 hover:bg-gray-800 p-2 rounded-lg">
+        <a href="add-post" className="flex items-center space-x-2 hover:bg-gray-800 p-2 rounded-lg">
           <Create />
           <span>Create Post</span>
         </a>

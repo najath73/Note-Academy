@@ -23,6 +23,7 @@ function Feed() {
 
   return (
     <div className="flex-1 p-4 space-y-4">
+      <h1 className="text-3xl font-bold mb-10">Home Feed</h1>
       {posts.map((post) => (
         <div key={post.id} className="bg-gray-900 p-4 rounded-lg text-white shadow-lg">
           <div className="flex items-center space-x-4">

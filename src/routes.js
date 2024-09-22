@@ -4,6 +4,7 @@ import Register from './pages/register'
 import Login from './pages/login';
 import HomePage from './pages/homepage'
 import MessagingPage from './pages/message'
+import AddPostPage from './pages/addPostPage'
 
 const AppRoutes = ()=> {
     return (
@@ -14,6 +15,7 @@ const AppRoutes = ()=> {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<HomePage />} />
         <Route path="/message" element={<MessagingPage />} />
+        <Route path="/add-post" element={<AddPostPage />} />
 
         </Routes>
 
