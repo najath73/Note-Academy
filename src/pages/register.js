@@ -1,29 +1,73 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Container, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Box, Grid
+  Container, TextField, Button, Typography, Select, MenuItem, InputLabel, FormControl, Box, Grid, Alert
 } from '@mui/material';
+import api from '../utils/api';
 
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    email: '',
-    profession: '',
-    password: ''
-  });
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // API call to register the user goes here
-    console.log(formData);
+
+    if (!username || !email || !password || !role) {
+      setError('Tous les champs doivent être remplis.');
+      return;
+    }
+
+    const newUser = {
+      username,
+      email,
+      password,
+      role,
+    };
+
+    try {
+      // Requête vers l'API pour créer un nouvel utilisateur
+      const response = await api.post('/users/signup', newUser);
+      const userId = response.data.user_id;
+      console.log(userId)
+      
+      if (role === "student"){
+        const location = '';
+        const profileInfo = {
+          location
+        }
+        await api.post(`/students/${userId}/profile`, profileInfo)
+      }else if(role === "teacher"){
+        const bio = '';
+        const location = '';
+        const expertise = '';
+        const profileInfo = {
+          bio,
+          location,
+          expertise
+        }
+        await api.post(`/teachers/${userId}/profile`, profileInfo) 
+
+      }else{
+        console.log('Aucun des role defini')
+      }
+
+      setSuccess('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+      setError(''); // Réinitialiser les erreurs en cas de succès
+      setTimeout(() => {
+        navigate('/login'); // Redirection après 2 secondes
+      }, 2000);
+    
+    } catch (error) {
+      console.error('Erreur lors de l\'inscription:', error.response?.data || error.message);
+      setError('Une erreur est survenue lors de l\'inscription.');
+      setSuccess('');
+    }
   };
 
   return (
@@ -60,21 +104,11 @@ const Register = () => {
               Fill in the details to create your account.
             </Typography>
 
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="name"
-                label="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                autoFocus
-                InputLabelProps={{ style: { color: '#fff' } }}
-                sx={{ input: { color: 'white' }, backgroundColor: '#333', borderRadius: 1 }}
-              />
+            {/* Affichage des messages d'erreur et de succès */}
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
@@ -82,8 +116,9 @@ const Register = () => {
                 id="username"
                 label="Username"
                 name="username"
-                value={formData.username}
-                onChange={handleChange}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoFocus
                 InputLabelProps={{ style: { color: '#fff' } }}
                 sx={{ input: { color: 'white' }, backgroundColor: '#333', borderRadius: 1 }}
               />
@@ -95,22 +130,36 @@ const Register = () => {
                 id="email"
                 label="Email"
                 name="email"
-                value={formData.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                InputLabelProps={{ style: { color: '#fff' } }}
+                sx={{ input: { color: 'white' }, backgroundColor: '#333', borderRadius: 1 }}
+              />
+
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 InputLabelProps={{ style: { color: '#fff' } }}
                 sx={{ input: { color: 'white' }, backgroundColor: '#333', borderRadius: 1 }}
               />
 
               <FormControl fullWidth margin="normal" required>
-                <InputLabel id="profession-label" style={{ color: 'white' }}>
-                  Profession
+                <InputLabel id="role-label" style={{ color: 'white' }}>
+                  Role
                 </InputLabel>
                 <Select
                   labelId="profession-label"
-                  id="profession"
-                  name="profession"
-                  value={formData.profession}
-                  onChange={handleChange}
+                  id="role"
+                  name="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
                   sx={{
                     color: 'white',
                     backgroundColor: '#333',
@@ -121,20 +170,6 @@ const Register = () => {
                   <MenuItem value="teacher">Teacher</MenuItem>
                 </Select>
               </FormControl>
-
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                value={formData.password}
-                onChange={handleChange}
-                InputLabelProps={{ style: { color: '#fff' } }}
-                sx={{ input: { color: 'white' }, backgroundColor: '#333', borderRadius: 1 }}
-              />
 
               <Button
                 type="submit"

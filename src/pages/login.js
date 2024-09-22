@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import {
-  Container, TextField, Button, Typography, InputLabel, Box, Grid
-} from '@mui/material';
-
+import { Container, TextField, Button, Typography, Box, Grid } from '@mui/material';
+import { useAuth } from '../hooks/authContext'; 
+import { useNavigate } from 'react-router-dom'; 
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',  
     password: ''
   });
+  const [error, setError] = useState(null); 
+  const { login } = useAuth(); 
+  const navigate = useNavigate(); 
 
   const handleChange = (e) => {
     setFormData({
@@ -17,10 +19,15 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // API call to register the user goes here
-    console.log(formData);
+    try {
+      console.log(formData)
+      await login(formData.email, formData.password); 
+      navigate('/');
+    } catch (err) {
+      setError(err.message); 
+    }
   };
 
   return (
@@ -54,26 +61,25 @@ const Login = () => {
               Login
             </Typography>
             <Typography color="gray" mb={3}>
-              Fill in the details to Log in your account.
+              Fill in the details to Log in to your account.
             </Typography>
 
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
-              
+            {/* Afficher l'erreur si elle existe */}
+            {error && <Typography color="red">{error}</Typography>}
 
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="username"
-                label="Username"
-                name="username"
-                value={formData.username}
+                id="email"
+                label="Email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 InputLabelProps={{ style: { color: '#fff' } }}
                 sx={{ input: { color: 'white' }, backgroundColor: '#333', borderRadius: 1 }}
               />
-
-
 
               <TextField
                 margin="normal"
